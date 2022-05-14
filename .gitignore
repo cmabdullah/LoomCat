@@ -1,0 +1,45 @@
+/bin/
+*.log
+*.db
+*.swp
+*.exe
+*.o
+*.recommenders
+*.metadata
+*.classpath
+*.project
+*.class
+*.settings
+
+
+/target/
+/index2k20/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/.metadata/
+/RemoteSystemsTempFiles/
+/lucene-7.3.0/
+/lucene-3.6.2/
+*.zip%
