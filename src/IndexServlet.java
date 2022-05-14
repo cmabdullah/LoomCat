@@ -3,7 +3,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
+
 public class IndexServlet extends MyHttpServlet {
+	private static Logger LOGGER = Logger.getLogger(IndexServlet.class.getName());
 
 	@Override
 	public void doGet(
@@ -26,7 +29,7 @@ public class IndexServlet extends MyHttpServlet {
 			myHttpServletResponse.getOutputStream().write(response.toString().getBytes());
 			myHttpServletResponse.getOutputStream().write(data);
 		} catch (IOException e) {
-			System.out.println(e.getLocalizedMessage());
+			LOGGER.info("Resources not found "+e.getLocalizedMessage());
 		}
 	}
 }

@@ -1,8 +1,10 @@
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 public class MyHttpServletRequest implements AutoCloseable {
+	private static Logger LOGGER = Logger.getLogger(MyHttpServletRequest.class.getName());
 
 	byte[] buffer = new byte[1024];
 
@@ -34,7 +36,7 @@ public class MyHttpServletRequest implements AutoCloseable {
 			}
 
 		} catch (IOException e) {
-			System.out.println(e.getLocalizedMessage());
+			LOGGER.info("Unable to read data from request inputStream "+e.getLocalizedMessage());
 		}
 
 	}

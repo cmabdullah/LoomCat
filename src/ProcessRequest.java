@@ -1,5 +1,9 @@
 import java.net.Socket;
+import java.util.logging.Logger;
+
 public class ProcessRequest {
+	private static Logger LOGGER = Logger.getLogger(ProcessRequest.class.getName());
+
 	public boolean startProcessing(Socket socket) {
 
 		try (MyHttpServletRequest myHttpServletRequest = new MyHttpServletRequest(
@@ -22,7 +26,6 @@ public class ProcessRequest {
 				if (uri.startsWith("/rpc")) {
 					//RPCServlet
 					MyHttpServlet myHttpServlet = new RPCServlet();
-					System.out.println(Thread.currentThread().getName());
 					myHttpServlet.doGet(myHttpServletRequest, myHttpServletResponse);
 					isProcessingFinished = true;
 				}
@@ -30,6 +33,7 @@ public class ProcessRequest {
 			//need to close socket
 			return isProcessingFinished;
 		} catch (Exception e) {
+			LOGGER.info("Unable to close input/output stream");
 			e.printStackTrace();
 			return false;
 		}

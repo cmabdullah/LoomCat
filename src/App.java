@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public class App {
 
 	public static LinkedBlockingQueue<Socket> SOCKET_QUEUE = new LinkedBlockingQueue<>();
-	private static Logger LO = Logger.getLogger(App.class.getName());
+	private static Logger LOGGER = Logger.getLogger(App.class.getName());
 	public static void main(String[] args) {
 		AcceptRequest acceptRequest = new AcceptRequest(Config.getInstance().getPort());
 		//acceptRequestThread
@@ -16,13 +16,14 @@ public class App {
 //		int requestProcessor = Config.getInstance().getRequestProcessor();
 		ProcessRequest processRequest = new ProcessRequest();
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			LO.info("request processor is ready to process requests");
+			LOGGER.info("request processor is ready to process requests");
 			while (true) {
 				try {
 					Socket socket = SOCKET_QUEUE.take();
-					System.out.println("new request" + LocalDateTime.now());
+					LOGGER.info("new request" + LocalDateTime.now());
 					executor.submit(() -> processRequest.startProcessing(socket));
 				} catch (InterruptedException e) {
+					LOGGER.info(e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 			}
