@@ -6,13 +6,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class App {
-
 	public static LinkedBlockingQueue<Socket> SOCKET_QUEUE = new LinkedBlockingQueue<>();
 	private static Logger LOGGER = Logger.getLogger(App.class.getName());
 	public static void main(String[] args) {
 		AcceptRequest acceptRequest = new AcceptRequest(Config.getInstance().getPort());
 		//acceptRequestThread
-		new Thread(acceptRequest).start();
+		Thread t = new Thread(acceptRequest);
+		t.setName("Loom App");
+		t.start();
 //		int requestProcessor = Config.getInstance().getRequestProcessor();
 		ProcessRequest processRequest = new ProcessRequest();
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {

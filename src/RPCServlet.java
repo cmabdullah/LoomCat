@@ -1,16 +1,10 @@
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -33,7 +27,7 @@ public class RPCServlet extends MyHttpServlet {
 			String lastPartOfThisUrl = uri.substring(uri.indexOf('?'));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream out = new DataOutputStream(baos);
-			String httpResponse = httpCallV2(uri);
+			String httpResponse = httpCallV2(lastPartOfThisUrl);
 			data = httpResponse.getBytes(StandardCharsets.UTF_8);
 			response = myHttpServletResponse.acceptHeader(data.length);
 			myHttpServletResponse.getOutputStream().write(response.toString().getBytes());
@@ -43,24 +37,6 @@ public class RPCServlet extends MyHttpServlet {
 		}
 	}
 
-	@Deprecated
-	private String httpCall(String lastPartOfThisUrl) {
-
-		//http://localhost:8080/api/v1/product/add?a1=sylet&a2=city
-		String url = Config.getInstance().getRpcUrl() + lastPartOfThisUrl;
-		System.out.println("calling url " + url);
-		try {
-			HttpRequest request = HttpRequest.newBuilder().uri(new URI(url)).GET().build();
-			HttpResponse<String> response = HttpClient.newHttpClient()
-					.send(request, HttpResponse.BodyHandlers.ofString());
-			System.out.println(response.body());
-			return response.body();
-		} catch (IOException | InterruptedException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-
 	//Ref: https://openjdk.java.net/jeps/353
 	//It integrates with the existing buffer cache mechanism so that it doesn’t need to use the thread stack for I/O
 	//exclude wrapper
@@ -68,8 +44,10 @@ public class RPCServlet extends MyHttpServlet {
 
 		//upstream calling url
 		//http://localhost:8080/api/v1/product/add?a1=sylet&a2=city
+		//http://localhost:8086/api/v1/info/countryInfo?a1=Dhaka&Bangladesh
 		String url2 = Config.getInstance().getRpcUrl() + lastPartOfThisUrl;
 		LOGGER.info("calling url " + url2);
+		String result = "";
 		try {
 			URL url = new URL(url2);
 			//LOGGER.info("webclient calling url " + url2.toString() + " Request id : ");
@@ -84,7 +62,7 @@ public class RPCServlet extends MyHttpServlet {
 					LOGGER.info("connecting... to ");
 				}
 				ByteBuffer webClientRequestBuffer = prepareByteBufferForClientRequest(
-						filePath, host, port);
+						filePath+lastPartOfThisUrl, host, port);
 				if (!webClientSocketChannel.isConnected()) {
 					if (webClientSocketChannel.finishConnect()) { // Finish connection process
 						LOGGER.info("done! with request ID ");
@@ -112,24 +90,16 @@ public class RPCServlet extends MyHttpServlet {
 					if (length == -1) {
 //					closeConnection(webClientSocketChannel);
 					} else if (length == 0) {
-						// response is not prepared yet
-						// this.selectionKey.interestOps(SelectionKey.OP_READ);
 						// https://stackoverflow.com/questions/34490207/the-difference-of-socketchannel-read-in-async-and-sync-mode
 					} else if (length > 0) {
 						readBuff.flip();
 						stringBuilder.append(StandardCharsets.UTF_8.decode(readBuff));
 
 						String str = stringBuilder.toString();
-						return str;
-//					System.out.println("response from upstream  for request ID : "+requestId+" is \n" +str);
-
-//					serverRequestProcessor.updateResponse(str);
-//					System.out.println("closing webclient connection for request ID "+requestId);
-//					closeConnection(webClientSocketChannel);
+						LOGGER.info("rpc response "+str);
+						result = str;
 					}
-
 				} catch (IOException e) {
-//				closeConnection(webClientSocketChannel);
 				}
 			}catch (IOException e){
 				LOGGER.info("webClientSocketChannel connection close issue "+e.getLocalizedMessage());
@@ -138,12 +108,23 @@ public class RPCServlet extends MyHttpServlet {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
-		return "";
+		return result;
 	}
 
+	/**
+	 *
+	 * @param path /api/v1/info/countryInfo?a1=sylet&a2=city
+	 * @param host localhost
+	 * @param port 8087
+	 * @return
+	 */
 	private ByteBuffer prepareByteBufferForClientRequest(String path, String host, String port) {
 		byte[] message = new String(
-				"GET " + path + " HTTP/1.0\r\nHost:" + host + ":" + port + " \r\n\r\n").getBytes();
+				"GET " + path + " HTTP/1.0\r\n"+
+						"User-Agent: PostmanRuntime/7.28.4\r\n"+
+						"Accept: */*\r\n"+
+						"Accept-Encoding: gzip, deflate, br\r\n"
+						+"Host:" + host + ":" + port + " \r\n\r\n").getBytes();
 		return ByteBuffer.wrap(message);
 	}
 }
