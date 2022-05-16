@@ -20,7 +20,7 @@ public class AcceptRequest extends Thread {
 			while (true) {
 				try {
 					Socket socket = serverSocket.accept();
-					App.SOCKET_QUEUE.put(socket);
+					LoomCatApp.SOCKET_QUEUE.put(socket);
 				} catch (InterruptedException e) {
 					LOGGER.info("Request accept failed "+e.getLocalizedMessage());
 				}

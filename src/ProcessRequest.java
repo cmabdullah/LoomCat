@@ -1,4 +1,5 @@
 import java.net.Socket;
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class ProcessRequest {
@@ -11,6 +12,8 @@ public class ProcessRequest {
 				MyHttpServletResponse myHttpServletResponse = new MyHttpServletResponse(
 						socket.getOutputStream())) {
 
+			Thread.currentThread().setName(String.valueOf(new Random().ints(1,10)));
+			LOGGER.info("Current thread info"+Thread.currentThread().getName());
 			boolean isProcessingFinished = false;
 			int position = myHttpServletRequest.getPosition();
 			if (position > 0) {
