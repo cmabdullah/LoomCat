@@ -2,9 +2,10 @@
 
 #### Mock Server
 
-> java -jar MockServer-0.0.1-SNAPSHOT.jar
+> java -jar MockServer-0.0.2-SNAPSHOT.jar
 
 > kill -9 $(lsof -ti:8087)
+
 * default running
   * server.port=8087 -> by default mock service app is running on port 8087
   * app.duration=100 -> mock service app return response after 100 ms delay.
@@ -39,6 +40,13 @@ performance
 
 ![](loomcat%20performance.png)
 
+number of user call : 20
+calling duration -> 60 seconds
+
+
+Throughput (Query per second) -> 213
+Average 88 ms
+Total request 12785
 
 ### TomCat App Curl
 
@@ -53,3 +61,10 @@ curl --location --request GET 'http://localhost:8082/rpc?a1=cm&a2=abdullah' \
 performance
 
 ![](old%20school%20tomcat.png)
+
+Throughput (Query per second) -> 17.2
+Average 1141 ms
+Total request 1049
+
++ Throughput
+  + 

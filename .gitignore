@@ -30,6 +30,7 @@
 *.iws
 *.iml
 *.ipr
+*.jmx
 
 ### NetBeans ###
 /nbproject/private/

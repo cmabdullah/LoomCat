@@ -9,7 +9,7 @@ public class Config {
 	private static class Holder {
 		private static Config instance = new Config(8082, "html",
 				Runtime.getRuntime().availableProcessors(),
-				"http://localhost:8086/api/v1/info/countryInfo");
+				"http://localhost:8087/api/v1/info/countryInfo");
 	}
 
 	private Config(int port, String host, int requestProcessor, String rpcUrl) {
