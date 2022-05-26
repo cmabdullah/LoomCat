@@ -1,7 +1,3 @@
-## Objective
-### How traditional Thread Pool Works?
-### How Virtual Thread Works?
-    how asynchronus communication can be achieved?
 Objective
 
 The main goal of this project is to achieve high throughput with lightweight concurrency with minimal effort in writing code.
@@ -71,30 +67,18 @@ this application accepts request from the browser or postman client. submit a ru
 
 ![](old%20school%20tomcat.png)
 
-Throughput (Query per second) -> 17.2
-Average 1141 ms
-Total request 1049
+Single user concurrently requesting the service for 60 seconds, actual generated throughput is 17.2 which is closer to 20. If we increase the number of user throughput cannot be increased. If we increase pool size like 4, the generated query per second will be actual * 4.
+
+    Throughput (Query per second) -> 17.2
+    Average 1141 ms
+    Total request 1049
 
 ### cpu consumption rate
-![](tomcatapp%20cpu.png)
 
+![](tomcatapp%20cpu.png)
+The figure illustrates that the CPU spent almost idle time. The main cause is to wait 50 seconds to get a response from service two.
 ### V2 with virtual thread pool
 
-
-this application accepts requests from the browser or postman client. this time we create newVirtualThreadPerTaskExecutor. this way we do not need to add this to the pool. as a result per task span a new virtual thread. this way we do not need to add this to the pool. so that multiple requests can be served at a time. this service one call service two. service two will return a response per request after 50 milliseconds of delay. that is why the waiting time period is a minimum of 50 milliseconds per request. The first services task submitted to the executor must have to wait until getting a response from service two. but this time after calling service two this virtual thread will be unmounted from the platform thread. once the response return from service two, again virtual thread will be mounted with the platform thread and render the final response from service one. Not a single task will depend on each other. the will independently be executed. as a result, the performance has dramatic rise. with this model, we can generate a significant amount of throughput.
-
-![](loomcat%20performance.png)
-
-number of user call : 20
-calling duration -> 60 seconds
-
-
-Throughput (Query per second) -> 213
-Average 88 ms
-Total request 12785
-
-### cpu consumption rate
-![](loomcat%20cpu.png)
 ```java
 
 import java.net.Socket;
@@ -130,4 +114,20 @@ public class LoomCatApp {
 }
 ```
 
+this application accepts requests from the browser or postman client. this time we create newVirtualThreadPerTaskExecutor. this way we do not need to add this to the pool. as a result per task span a new virtual thread. this way we do not need to add this to the pool. so that multiple requests can be served at a time. this service one call service two. service two will return a response per request after 50 milliseconds of delay. that is why the waiting time period is a minimum of 50 milliseconds per request. The first services task submitted to the executor must have to wait until getting a response from service two. When the task is submitted to the scheduler, it will mount its platform thread, which works as a virtual thread carrier, but this time after calling service two this virtual thread will be unmounted from the platform thread. once the response return from service two, again virtual thread will be mounted with the platform thread and render the final response from service one. Not a single task will depend on each other. The tasks will independently be executed. as a result, the performance has dramatic rise. with this model, we can generate a significant amount of throughput.
 
+![](loomcat%20performance.png)
+
+20 users concurrently requesting the service for 60 seconds, the actual generated throughput is 213. If we increase the number of user throughput also be increased.
+
+    Throughput (Query per second) -> 213
+    Average 88 ms
+    Total request 12785
+
+### cpu consumption rate
+CPU is not idle in this case. The main cause is he has to do something during this execution time.
+![](loomcat%20cpu.png)
+
+The experiment code will be available there
+
+Ref: https://github.com/cmabdullah/LoomCat
